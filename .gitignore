@@ -1,0 +1,10 @@
+.cpcache/
+.idea/
+.nrepl-port
+advent-of-code.iml
+**/test.txt
+token.txt
+.lsp/
+.clj-kondo/
+.calva/
+token.txt
