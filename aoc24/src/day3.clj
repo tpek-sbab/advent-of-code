@@ -1,7 +1,6 @@
 (ns aoc24.src.day3
   (:require
    [aoc-tools :refer [read-input submit-answer]]
-   [utils :refer [nmap extract-numbers]]
    [clojure.string :as str]))
 
 (def input (read-input :test))
