@@ -71,13 +71,14 @@
 
 (defn submit-answer
   [part answer]
-  (let [[year day] (get-year-and-day)
+  (let [_ (println "Submitting answer" answer)
+        [year day] (get-year-and-day)
         url      (str "https://adventofcode.com/20" year "/day/" day "/answer")
         cookie   (slurp "token.txt")
         payload  {:method      "POST"
                   :headers     {:Cookie     cookie
                                 :User-Agent "Tomas' AoC Clojure Library https://github.com/tpek-sbab/advent-of-code"}
                   :form-params {"level" (str part) "answer" (str answer)}}
-        response (client/post url payload)
-        _        (println "Submitting answer" answer)]
+        response (client/post url payload)]
     (re-seq #"(?is).{20}answer.{50}" (:body response))))
+
