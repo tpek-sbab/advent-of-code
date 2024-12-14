@@ -1,4 +1,4 @@
-with open("aoc24/inputs/day5.txt") as f:
+with open("aoc24/inputs/day05.txt") as f:
     lines = f.read().splitlines()
 
 split = lines.index("")

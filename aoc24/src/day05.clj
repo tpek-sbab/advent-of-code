@@ -1,4 +1,4 @@
-(ns aoc24.src.day5
+(ns aoc24.src.day05
   (:require
    [aoc-tools :refer [read-input submit-answer]]
    [utils :refer [extract-numbers]]

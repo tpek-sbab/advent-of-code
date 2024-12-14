@@ -1,4 +1,4 @@
-with open("aoc24/inputs/day1.txt") as f:
+with open("aoc24/inputs/day01.txt") as f:
     lines = f.read().splitlines()
 
 left = []

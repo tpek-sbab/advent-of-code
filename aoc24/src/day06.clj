@@ -1,4 +1,4 @@
-(ns aoc24.src.day6
+(ns aoc24.src.day06
   (:require
    [aoc-tools :refer [read-input submit-answer]]
    [utils :refer [filter-vals iterate-until]]))

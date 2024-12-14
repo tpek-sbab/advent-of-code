@@ -1,6 +1,6 @@
 import re
 
-with open("aoc24/inputs/day3.txt") as f:
+with open("aoc24/inputs/day03.txt") as f:
     instructions = f.read().replace("\n", "")
 
 

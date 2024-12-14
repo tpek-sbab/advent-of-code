@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-with open("aoc24/inputs/day6.txt") as f:
+with open("aoc24/inputs/day06.txt") as f:
     lines = f.read().splitlines()
 
 size = len(lines)

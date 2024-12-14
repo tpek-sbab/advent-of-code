@@ -14,7 +14,7 @@
 
 (defn fetch-input
   [year day]
-  (let [base-url       (str "https://adventofcode.com/20" year "/day/" day)
+  (let [base-url       (str "https://adventofcode.com/20" year "/day/" (read-string day))
         input-url      (str base-url "/input")
         cookie         (slurp "token.txt")
         payload        {:headers {:Cookie     cookie
@@ -39,6 +39,7 @@
 
   ([year day]
    (let [year       (mod year 2000)
+         day        (format "%02d" day)
          input-path (str "aoc" year "/inputs/")
          src-path   (str "aoc" year "/src/")
          [example-text input-text] (fetch-input year day)]
@@ -47,7 +48,7 @@
        (spit (str input-path "day" day ".txt") input-text)
        (spit (str src-path "day" day ".clj") (str "(ns aoc" year ".src.day" day "\n"
                                                   "  (:require \n"
-                                                  "    [aoc-tools :refer [read-input submit-answer]]))\n\n"
+                                                  "   [aoc-tools :refer [read-input submit-answer]]))\n\n"
                                                   "(def input (read-input :test))\n"
                                                   "(def real-input (read-input))\n\n"))))))
 
@@ -55,7 +56,8 @@
   []
   (let [[project _ file] (str/split (str *ns*) #"\.")
         year (first (extract-numbers project))
-        day  (first (extract-numbers file))]
+        day  (first (extract-numbers file))
+        day  (format "%02d" day)]
     [year day]))
 
 (defn read-input

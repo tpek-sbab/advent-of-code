@@ -1,4 +1,4 @@
-with open("aoc24/inputs/day4.txt") as f:
+with open("aoc24/inputs/day04.txt") as f:
     grid = f.read().splitlines()
 
 

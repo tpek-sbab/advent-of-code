@@ -1,7 +1,6 @@
-(ns aoc24.src.day8
+(ns aoc24.src.day08
   (:require
    [aoc-tools :refer [read-input submit-answer]]
-   [utils :refer [iterate-until]]
    [clojure.set :refer [union]]))
 
 (def input (read-input :test))

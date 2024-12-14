@@ -1,4 +1,4 @@
-with open("aoc24/inputs/day9.txt") as f:
+with open("aoc24/inputs/day09.txt") as f:
     fs = f.read()[:-1]
 
 # fs = "2333133121414131402"

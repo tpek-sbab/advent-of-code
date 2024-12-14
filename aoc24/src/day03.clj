@@ -1,4 +1,4 @@
-(ns aoc24.src.day3
+(ns aoc24.src.day03
   (:require
    [aoc-tools :refer [read-input submit-answer]]
    [clojure.string :as str]))

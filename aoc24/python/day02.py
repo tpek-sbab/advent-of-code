@@ -1,4 +1,4 @@
-with open("aoc24/inputs/day2.txt") as f:
+with open("aoc24/inputs/day02.txt") as f:
     lines = f.read().splitlines()
 
 reports = [[int(i) for i in line.split(" ")] for line in lines]
