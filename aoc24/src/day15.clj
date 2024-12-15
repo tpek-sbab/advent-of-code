@@ -4,7 +4,7 @@
    [utils :refer [mfilter]]
    [clojure.string :as str]))
 
-(def input (read-input "day15.ex2"))
+(def input (read-input :day15.ex2))
 (def real-input (read-input))
 
 (def up [-1 0])
@@ -12,10 +12,21 @@
 (def left [0 -1])
 (def right [0 1])
 
+(defn widen
+  [s]
+  (-> s
+      (str/replace "#" "##")
+      (str/replace "O" "[]")
+      (str/replace "." "..")
+      (str/replace "@" "@.")))
+
 (defn parse
-  [input]
-  (let [[grid moves] (->> input
-                          (split-with (complement #{""})))
+  [input & wide?]
+  (let [[grid _ moves] (->> input
+                            (partition-by #{""}))
+        grid (if wide?
+               (map widen grid)
+               grid)
         grid (into {} (for [x (range (count grid))
                             y (range (count (first grid)))
                             :let [char (nth (nth grid x) y)]
@@ -34,7 +45,7 @@
 
 (defn box?
   [char]
-  (= char \O))
+  (#{\O \[ \]} char))
 
 (defn wall?
   [char]
@@ -57,20 +68,20 @@
 
 (defn draw
   [grid]
-  (let [border (->> grid
-                    (keys)
-                    (remove keyword?)
-                    (map first)
-                    (apply max))
-        printout (->> (for [x (range (inc border))
-                            y (range (inc border))]
+  (let [[x-max y-max] (as-> grid res
+                        (keys res)
+                        (remove keyword? res)
+                        [(map first res) (map second res)]
+                        [(apply max (first res)) (apply max (second res))])
+        printout (->> (for [x (range (inc x-max))
+                            y (range (inc y-max))]
                         (if (= [x y] (grid :position))
                           \@
                           (get grid [x y] \.)))
-                      (partition (inc border))
+                      (partition (inc y-max))
                       (map (partial apply str))
                       (str/join "\n"))]
-    (println printout)))
+    (do (println printout) grid)))
 
 (defn move
   [grid direction]
@@ -87,12 +98,54 @@
 
 
 ;; Part 1
-(time
- (let [[grid moves] (parse real-input)]
-   (->> moves
-        (reduce move grid)
-        (mfilter :vals #{\O})
-        (keys)
-        (map gps)
-        (apply +)
-        #_(submit-answer 1))))
+(let [[grid moves] (parse real-input)]
+  (->> moves
+       (reduce move grid)
+       (mfilter :vals #{\O})
+       (keys)
+       (map gps)
+       (apply +)
+       #_(submit-answer 1)))
+
+
+
+
+(defn push-wide
+  [grid pos direction]
+  (cond
+    (nil? (grid pos)) grid
+    (wall? (grid pos)) grid
+    :else (let [[left right] (if (= (grid pos) \[)
+                               [pos (map + pos right)]
+                               [(map + pos left) pos])
+                next-left (map + left direction)
+                next-right (map + right direction)
+                required (remove #{left right} [next-left next-right])
+                grid (reduce #(push-wide %1 %2 direction) grid required)]
+            (if (every? nil? (map grid required))
+              (->  grid
+                   (dissoc left right)
+                   (assoc next-left \[ next-right \]))
+              grid))))
+
+(defn move-wide
+  [grid direction]
+  (let [next (map + (grid :position) direction)]
+    (cond
+      (wall? (grid next)) grid
+      (nil? (grid next)) (assoc grid :position next)
+      :else (let [pushed-grid (push-wide grid next direction)]
+              (if (nil? (pushed-grid next))
+                (assoc pushed-grid :position next)
+                pushed-grid)))))
+
+;; Part 2
+(let [[grid moves] (parse real-input :wide)]
+  (->> moves
+       (reduce move-wide grid)
+       (draw)
+       (mfilter :vals #{\[})
+       (keys)
+       (map gps)
+       (apply +)
+       #_(submit-answer 2)))
