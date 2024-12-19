@@ -121,3 +121,63 @@
      (map str)
      (join ",")
      #_(submit-answer 1))
+
+
+(defn nth-output
+  [computer n]
+  (let [outp (->> computer
+                  (iterate process)
+                  (drop-while #(and
+                                (:continue %)
+                                (< (count (:output %)) n)))
+                  (first)
+                  (:output))]
+    (if (< (count outp) n)
+      nil
+      (last outp))))
+
+(defn check-val
+  [computer val]
+  (map #(nth-output (assoc computer :A %) val) (range 10000)))
+
+(defn from-oct
+  [n]
+  (->> n
+      ;;  (reverse)
+       (map * (iterate #(* % 8) 1))
+       (apply +)))
+
+(def computer (get-computer input))
+
+(defn minmax
+  [coll]
+  [(apply min coll) (apply max coll)])
+
+(->> (range)
+     (map #(assoc (get-computer real-input) :A %))
+     (map output)
+     (map from-oct)
+     (map #(quot % 64))
+     (partition 64)
+     (map set)
+     (map first)
+     (remove #(< % 1000))
+    ;;  (map minmax)
+     )
+
+(defn calc
+  [x]
+  (from-oct (output (assoc (get-computer real-input) :A x))))
+
+
+(for [a (range 2990 3010)]
+  (let [ca (calc a)]
+    [a ca (float (/ ca a))]))
+
+;; Part 2
+;; (time
+;;  (let [computer (get-computer real-input)]
+;;    (->> (range)
+;;         (map (partial check-value computer))
+;;         (drop-while nil?)
+;;         (first))))
