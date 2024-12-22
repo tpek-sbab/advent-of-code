@@ -34,8 +34,7 @@
   (let [operand (combo computer operand)
         denom (expt 2 operand)]
     (-> computer
-        (update :A / denom)
-        (update :A int)
+        (update :A quot denom)
         (update :pointer + 2))))
 
 (defn bxl
@@ -77,8 +76,7 @@
         denom (expt 2 operand)]
     (-> computer
         (assoc :B (computer :A))
-        (update :B / denom)
-        (update :B int)
+        (update :B quot denom)
         (update :pointer + 2))))
 
 (defn cdv
@@ -87,8 +85,7 @@
         denom (expt 2 operand)]
     (-> computer
         (assoc :C (computer :A))
-        (update :C / denom)
-        (update :C int)
+        (update :C quot denom)
         (update :pointer + 2))))
 
 (def program-map {0 adv 1 bxl 2 bst 3 jnz 4 bxc 5 out 6 bdv 7 cdv})
@@ -123,61 +120,51 @@
      #_(submit-answer 1))
 
 
-(defn nth-output
-  [computer n]
-  (let [outp (->> computer
-                  (iterate process)
-                  (drop-while #(and
-                                (:continue %)
-                                (< (count (:output %)) n)))
-                  (first)
-                  (:output))]
-    (if (< (count outp) n)
-      nil
-      (last outp))))
+(def bits (for [x (range 2)
+                y (range 2)
+                z (range 2)]
+            (list x y z)))
 
-(defn check-val
-  [computer val]
-  (map #(nth-output (assoc computer :A %) val) (range 10000)))
+(defn xor
+  [b1 b2]
+  (->> (map = b1 b2)
+       (map {true 0 false 1})))
 
-(defn from-oct
-  [n]
-  (->> n
-      ;;  (reverse)
-       (map * (iterate #(* % 8) 1))
-       (apply +)))
+(defn next-output
+  [acc triple]
+  (let [xor-1 (xor triple [0 0 1])
+        num-drop (apply + (map * [4 2 1] xor-1))
+        trunc (drop-last num-drop (concat acc triple))
+        trunc (take-last 3 (concat [0 0 0] trunc))
+        xor-5 (xor triple [1 0 1])
+        out (xor (take-last 3 trunc) xor-5)
+        out (take-last 3 (concat [0 0 0] out))]
+    (apply + (map * [4 2 1] out))))
 
-(def computer (get-computer input))
-
-(defn minmax
-  [coll]
-  [(apply min coll) (apply max coll)])
-
-(->> (range)
-     (map #(assoc (get-computer real-input) :A %))
-     (map output)
-     (map from-oct)
-     (map #(quot % 64))
-     (partition 64)
-     (map set)
-     (map first)
-     (remove #(< % 1000))
-    ;;  (map minmax)
-     )
-
-(defn calc
-  [x]
-  (from-oct (output (assoc (get-computer real-input) :A x))))
+(defn to-dec
+  [b]
+  (apply + (map * (reverse b) (take (count b) (iterate (partial * 2) 1)))))
 
 
-(for [a (range 2990 3010)]
-  (let [ca (calc a)]
-    [a ca (float (/ ca a))]))
+(defn lowest
+  [acc out]
+  (let [next3  (->> bits
+                    (filter #(= (next-output acc %) out))
+                    (first))]
+    (if (nil? next3)
+      (concat acc [9 9 9])
+      (concat acc next3))))
 
 ;; Part 2
-;; (time
-;;  (let [computer (get-computer real-input)]
-;;    (->> (range)
-;;         (map (partial check-value computer))
-;;         (drop-while nil?)
-;;         (first))))
+(let [computer (get-computer real-input)]
+  (->> computer
+       (:program)
+       (reverse)
+       (reduce lowest [])
+       (map {0 0 1 1 9 0})
+       (to-dec)
+       (iterate inc)
+       (filter #(= (output (assoc computer :A %)) (computer :program)))
+       (first)
+       #_(submit-answer 2)))
+
